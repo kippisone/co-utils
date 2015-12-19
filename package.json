@@ -1,5 +1,5 @@
 {
-  "name": "co-series",
+  "name": "co-utils",
   "version": "0.1.0",
   "description": "Calls an array of promises in series using co",
   "main": "index.js",
@@ -32,10 +32,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Andifeind/co-series.git"
+    "url": "git+https://github.com/Andifeind/co-utils.git"
   },
   "bugs": {
-    "url": "https://github.com/Andifeind/co-series/issues"
+    "url": "https://github.com/Andifeind/co-utils/issues"
   },
-  "homepage": "https://github.com/Andifeind/co-series#readme"
+  "homepage": "https://github.com/Andifeind/co-utils#readme"
 }

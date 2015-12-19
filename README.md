@@ -1,4 +1,4 @@
-# co-series
+# co-utils
 
 Extends co with a .series method to call an array of promises in series
 
