@@ -1,0 +1,30 @@
+{
+  "name": "co-series",
+  "version": "0.0.1",
+  "description": "Calls an array of promises in series using co",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "./node_modules/mocha/bin/_mocha tests/*.spec.js"
+  },
+  "keywords": [
+    "co",
+    "async",
+    "series",
+    "queue",
+    "co-series",
+    "co-queue"
+  ],
+  "author": "Andi Heinkelein <andifeind@noname-media.com>",
+  "license": "MIT",
+  "dependencies": {
+    "co": "^4.6.0"
+  },
+  "devDependencies": {
+    "expect": "^1.13.4",
+    "expect.js": "^0.3.1",
+    "mocha": "^2.3.4"
+  }
+}
