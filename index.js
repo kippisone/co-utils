@@ -6,24 +6,11 @@ module.exports = co;
 module.exports.series = function(arr) {
     return co(function* () {
         var result = [];
-        while (true) {
-            let next = arr.shift();
-            if (!next) {
-                return result;
-            }
-
-            let res = yield next;
+        for (let promise of arr) {
+            let res = yield promise;
             result.push(res);
         }
 
-        /*for (let gen of arr) {
-            try {
-                
-            }
-            catch(err) {
-                console.log(err);
-                throw new Error(err);
-            }
-        }*/
+        return result;
     });
 };
