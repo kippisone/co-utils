@@ -1,6 +1,6 @@
 # co-utils
 
-Extends co with a .series method to call an array of promises in series
+Extends [co](https://github.com/tj/co) with a .series method to call an array of promises in series
 
 ```js
 var co = require('co-series');
