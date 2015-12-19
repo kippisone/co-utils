@@ -1,6 +1,6 @@
 {
   "name": "co-series",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Calls an array of promises in series using co",
   "main": "index.js",
   "directories": {
@@ -15,7 +15,10 @@
     "series",
     "queue",
     "co-series",
-    "co-queue"
+    "co-queue",
+    "generator",
+    "flow",
+    "waterfall"
   ],
   "author": "Andi Heinkelein <andifeind@noname-media.com>",
   "license": "MIT",
@@ -26,5 +29,13 @@
     "expect": "^1.13.4",
     "expect.js": "^0.3.1",
     "mocha": "^2.3.4"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Andifeind/co-series.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Andifeind/co-series/issues"
+  },
+  "homepage": "https://github.com/Andifeind/co-series#readme"
 }
