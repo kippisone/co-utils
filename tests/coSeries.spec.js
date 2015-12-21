@@ -5,14 +5,6 @@ describe('co.series()', function() {
     'use strict';
     
     describe('method', function() {
-        beforeEach(function() {
-
-        });
-
-        afterEach(function() {
-
-        });
-
         it('Should call promises in series', function(done) {
             var promises = [
                 Promise.resolve('a'),
