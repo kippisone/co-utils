@@ -17,9 +17,8 @@ module.exports.series = function(arr) {
         var result = [];
         for (let promise of arr) {
             let res;
-            if (typeof promise === 'function') {
+            if (typeof promise === 'function' && !promise.isGenerator()) {
                 res = yield new Promise(promiseFn(promise));
-
             }
             else {
                 res = yield promise;
