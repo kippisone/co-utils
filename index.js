@@ -4,35 +4,84 @@ var co = require('co');
 
 module.exports = co;
 module.exports.series = function(arr) {
-    var promiseFn = function(fn) {
-        return function(resolve, reject) {
-            let p2 = fn(reject, resolve);
-            if (p2 && p2.then && p2.catch) {
-                p2.then(resolve).catch(reject);
-            }
-        };
-    };
-    
     return co(function* () {
         var result = [];
-        for (let promise of arr) {
+        for (let fn of arr) {
             let res;
-            if (typeof promise === 'object' &&
-                typeof promise.then === 'function' &&
-                typeof promise.catch === 'function'
+            if (typeof fn === 'object' &&
+                typeof fn.then === 'function' &&
+                typeof fn.catch === 'function'
             ) {
-                res = yield promise;
+                res = yield fn;
             }
-            else if (typeof promise === 'function' && !promise.isGenerator()) {
-                res = yield 
+            else if (typeof fn === 'function' && fn.constructor.name === 'Function') {
+                let callback = this.getCallbackPromise();
+                fn(callback);
+                res = yield callback._promise;
             }
             else {
-                res = yield promise;
+                res = yield fn;
             }
 
             result.push(res);
         }
 
         return result;
+    }.bind(this));
+};
+
+module.exports.getCallbackPromise = function() {
+    var resolve,
+        reject,
+        finalFuncs = [];
+
+    var promise = new Promise(function(_resolve, _reject) {
+        resolve = _resolve;
+        reject = _reject;
     });
+
+    function callback (err, result) {
+        if (err) {
+            return callback.reject(err);
+        }
+
+        callback.resolve(result);
+    }
+
+    callback.resolve = function(res) {
+        resolve(res);
+        callback._callFinal();
+    }
+    
+    callback.reject = function(res) {
+        reject(res);
+        callback._callFinal();
+    }
+
+    callback.final = function(fn) {
+        finalFuncs.push(fn);
+    }
+
+    callback.then = function(fn) {
+        promise.then(fn);
+        return callback;
+    }
+
+    callback.catch = function(fn) {
+        promise.catch(fn);
+        return callback;
+    }
+
+    callback._callFinal = function() {
+        for (let fn of finalFuncs) {
+            fn();
+        }
+
+        return callback;
+    }
+
+    callback._promise = promise;
+
+
+    return callback;
 };
