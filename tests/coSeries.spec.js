@@ -44,13 +44,13 @@ describe('co.series()', function() {
 
             func1.yields(null, 'a');
             func2.yields(null, 'b');
-            func3.yields('err');
+            func3.yields('Booom');
 
             func1.isGenerator = isGenStub;
             func2.isGenerator = isGenStub;
             func3.isGenerator = isGenStub;
 
-            co.series([func1, func2, func3]).then(function(res) {
+            co.series([func1, func2, func3]).then(function() {
                 done('Fail!');
             }).catch(function(err) {
                 expect(err).to.be.eql('Booom');
