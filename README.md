@@ -1,6 +1,6 @@
 # co-utils
 
-Extends [co](https://github.com/tj/co) with a .series method to call an array of promises in series
+Extends [co](https://github.com/tj/co) with a .series method to call an array of promises, callbacks or generators in series
 
 ```js
 var co = require('co-series');
@@ -9,12 +9,55 @@ var co = require('co-series');
 co(function* () {
     
 });
+```
 
-// Call an array of promises in series
+## Callables
+
+Callabels are functions or promises supported by co-series
+
+### Promises
+
+```js
+var fn = new Promise(function(resolve, reject) {
+    resolve('foo');
+});
+```
+
+### Callback functions
+
+```js
+var fn = function(done) {
+    done(null, 'foo');
+}
+```
+
+### Functions returning a promise
+
+```js
+var fn = function(promise) {
+    promisee.resolve('foo');
+};
+```
+
+### Generators
+
+```
+var fn = function *() {
+    yield doSomeAsync();
+    return 'foo';
+};
+```
+
+## Usage
+
+// Call an array of **callables** in series
 var promises = [
     Promise.resolve('a');
     Promise.resolve('b');
-    Promise.resolve('c');
+    Promise.resolve('c'),
+    function *() { return 'd' },
+    function *() { return 'e' },
+    function() {}
 ];
 
 co.series(promises).then(function(result) {
