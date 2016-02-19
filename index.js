@@ -2,6 +2,14 @@
 
 var co = require('co');
 
+var isPromise = function(obj) {
+    if (obj && typeof obj.then === 'function' && typeof obj.catch === 'function') {
+        return true;
+    }
+
+    return false;
+}
+
 module.exports = co;
 module.exports.series = function(arr) {
     return co(function* () {
@@ -16,8 +24,13 @@ module.exports.series = function(arr) {
             }
             else if (typeof fn === 'function' && fn.constructor.name === 'Function') {
                 let callback = this.getCallbackPromise();
-                fn(callback);
-                res = yield callback._promise;
+                let ownPromise = fn(callback);
+                if (isPromise(ownPromise)) {
+                    res = yield ownPromise;
+                }
+                else {
+                    res = yield callback._promise;
+                }
             }
             else {
                 res = yield fn;
