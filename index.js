@@ -11,7 +11,35 @@ var isPromise = function(obj) {
 }
 
 module.exports = co;
-module.exports.series = function(arr) {
+
+/**
+ * Runs an array of yieldables in series
+ *
+ * @method series
+ * @param  {array} arr  Array of yieldables
+ * @param  {object} [ctx] This value, binded to each yieldable
+ * @param  {array} [args] Arguments array, passed to each yieldable
+ * @return {object} Returns a promise
+ * 
+ * @returnValue {promise}
+ * @arg {object} Result object
+ */
+module.exports.series = function(arr, ctx, args) {
+    ctx = ctx || {};
+    
+    if (Array.isArray(ctx)) {
+        args = ctx;
+        ctx = {};
+    }
+
+    if (!args) {
+        args = []
+    }
+
+    if (!Array.isArray(args)) {
+        throw new Error('The args parameter must be an array!');
+    }
+
     return co(function* () {
         var result = [];
         for (let fn of arr) {
@@ -24,7 +52,7 @@ module.exports.series = function(arr) {
             }
             else if (typeof fn === 'function' && fn.constructor.name === 'Function') {
                 let callback = this.getCallbackPromise();
-                let ownPromise = fn(callback);
+                let ownPromise = fn.bind.apply(fn, [ctx].concat(args, callback))();
                 if (isPromise(ownPromise)) {
                     res = yield ownPromise;
                 }
@@ -33,7 +61,7 @@ module.exports.series = function(arr) {
                 }
             }
             else {
-                res = yield fn;
+                res = yield fn.bind.apply(fn, [ctx].concat(args))();
             }
 
             result.push(res);
