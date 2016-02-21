@@ -270,4 +270,334 @@ describe('co.series()', function() {
             });
         });
     });
+
+    describe('series with args', function() {
+        it('Should fail if args param is not an array', function() {
+            inspect(co.series).withArgs([], {}, 'string').doesThrow(/must be an array/);
+        });
+
+        it('Should call functions in series', function(done) {
+            var func1 = function(a, b, c, done) {
+                done(null, a);
+            }
+            var func2 = function(a, b, c, done) {
+                done(null, b);
+            }
+            var func3 = function(a, b, c, done) {
+                done(null, c);
+            }
+
+            var functions = [
+                func1,
+                func2,
+                func3
+            ];
+
+            var args = ['apple', 'banana', 'coconut'];
+            co.series(functions, args).then(function(result) {
+                expect(result).to.be.eql(['apple', 'banana', 'coconut']);
+                done();
+            }).catch(function(err) {
+                done(err);
+            });
+        });
+
+        it('Should call promises in series', function(done) {
+            var func1 = function(a, b, c, promise) {
+                promise.resolve(a);
+            }
+            var func2 = function(a, b, c, promise) {
+                promise.resolve(b);
+            }
+            var func3 = function(a, b, c, promise) {
+                promise.resolve(c);
+            }
+
+            var functions = [
+                func1,
+                func2,
+                func3
+            ];
+
+            var args = ['apple', 'banana', 'coconut'];
+            co.series(functions, args).then(function(result) {
+                expect(result).to.be.eql(['apple', 'banana', 'coconut']);
+                done();
+            }).catch(function(err) {
+                done(err);
+            });
+        });
+
+        it('Should call promise returning function in series', function(done) {
+            var func1 = function(a, b, c) {
+                return Promise.resolve(a);
+            }
+            var func2 = function(a, b, c) {
+                return Promise.resolve(b);
+            }
+            var func3 = function(a, b, c) {
+                return Promise.resolve(c);
+            }
+
+            var functions = [
+                func1,
+                func2,
+                func3
+            ];
+
+            var args = ['apple', 'banana', 'coconut'];
+            co.series(functions, args).then(function(result) {
+                expect(result).to.be.eql(['apple', 'banana', 'coconut']);
+                done();
+            }).catch(function(err) {
+                done(err);
+            });
+        });
+
+        it('Should call generators in series', function(done) {
+            var gen1 = function *(a, b, c) { return a; };
+            var gen2 = function *(a, b, c) { return b; };
+            var gen3 = function *(a, b, c) { return c; };
+
+            var generators = [
+                gen1,
+                gen2,
+                gen3
+            ];
+
+            var args = ['apple', 'banana', 'coconut'];
+            co.series(generators, args).then(function(result) {
+                expect(result).to.be.eql(['apple', 'banana', 'coconut']);
+                done();
+            }).catch(function(err) {
+                done(err);
+            });
+        });
+    });
+
+    describe('series with args and context', function() {
+        it('Should fail if args param is not an array', function() {
+            inspect(co.series).withArgs([], {}, 'string').doesThrow(/must be an array/);
+        });
+
+        it('Should call functions in series', function(done) {
+            var func1 = function(a, b, c, done) {
+                done(null, this.prefix + a);
+            }
+            var func2 = function(a, b, c, done) {
+                done(null, this.prefix + b);
+            }
+            var func3 = function(a, b, c, done) {
+                done(null, this.prefix + c);
+            }
+
+            var functions = [
+                func1,
+                func2,
+                func3
+            ];
+
+            var args = ['apple', 'banana', 'coconut'];
+            var ctx = { prefix: 'I like: ' };
+            co.series(functions, ctx, args).then(function(result) {
+                expect(result).to.be.eql(['I like: apple', 'I like: banana', 'I like: coconut']);
+                done();
+            }).catch(function(err) {
+                done(err);
+            });
+        });
+
+        it('Should call promises in series', function(done) {
+            var func1 = function(a, b, c, promise) {
+                promise.resolve(this.prefix + a);
+            }
+            var func2 = function(a, b, c, promise) {
+                promise.resolve(this.prefix + b);
+            }
+            var func3 = function(a, b, c, promise) {
+                promise.resolve(this.prefix + c);
+            }
+
+            var functions = [
+                func1,
+                func2,
+                func3
+            ];
+
+            var args = ['apple', 'banana', 'coconut'];
+            var ctx = { prefix: 'I like: ' };
+            co.series(functions, ctx, args).then(function(result) {
+                expect(result).to.be.eql(['I like: apple', 'I like: banana', 'I like: coconut']);
+                done();
+            }).catch(function(err) {
+                done(err);
+            });
+        });
+
+        it('Should call promise returning function in series', function(done) {
+            var func1 = function(a, b, c) {
+                return Promise.resolve(this.prefix + a);
+            }
+            var func2 = function(a, b, c) {
+                return Promise.resolve(this.prefix + b);
+            }
+            var func3 = function(a, b, c) {
+                return Promise.resolve(this.prefix + c);
+            }
+
+            var functions = [
+                func1,
+                func2,
+                func3
+            ];
+
+            var args = ['apple', 'banana', 'coconut'];
+            var ctx = { prefix: 'I like: ' };
+            co.series(functions, ctx, args).then(function(result) {
+                expect(result).to.be.eql(['I like: apple', 'I like: banana', 'I like: coconut']);
+                done();
+            }).catch(function(err) {
+                done(err);
+            });
+        });
+
+        it('Should call generators in series', function(done) {
+            var gen1 = function *(a, b, c) { return this.prefix + a; };
+            var gen2 = function *(a, b, c) { return this.prefix + b; };
+            var gen3 = function *(a, b, c) { return this.prefix + c; };
+
+            var generators = [
+                gen1,
+                gen2,
+                gen3
+            ];
+
+            var args = ['apple', 'banana', 'coconut'];
+            var ctx = { prefix: 'I like: ' };
+            co.series(generators, ctx, args).then(function(result) {
+                expect(result).to.be.eql(['I like: apple', 'I like: banana', 'I like: coconut']);
+                done();
+            }).catch(function(err) {
+                done(err);
+            });
+        });
+    });
+
+    describe('series with timeout', function() {
+        it('Should call functions in series until timeout was reached', function(done) {
+            var counter = 0;
+            var func1 = function(done) {
+                // never call done
+                setTimeout(function() {
+                    counter++;
+                    done();
+                }, 200);
+            }
+
+            var func2 = function(done) {
+                counter++;
+                done();
+            }
+
+            var func3 = function(done) {
+                counter++;
+                done();
+            }
+
+            co.series([func1, func2, func3], 100).then(function(result) {
+                done('Should never been called!');
+            }).catch(function(err) {
+                inspect(err).doesMatch(/Timeout/);
+                inspect(counter).isLesserThan(2);
+                done();
+            });
+        });
+
+        it('Should call functions in series until timeout was reached with context', function(done) {
+            var counter = 0;
+            var func1 = function(done) {
+                // never call done
+                setTimeout(function() {
+                    counter++;
+                    done();
+                }, 200);
+            }
+
+            var func2 = function(done) {
+                counter++;
+                done();
+            }
+
+            var func3 = function(done) {
+                counter++;
+                done();
+            }
+
+            co.series([func1, func2, func3], {}, 100).then(function(result) {
+                done('Should never been called!');
+            }).catch(function(err) {
+                inspect(err).doesMatch(/Timeout/);
+                inspect(counter).isLesserThan(2);
+                done();
+            });
+        });
+
+        it('Should call functions in series until timeout was reached with args', function(done) {
+            var counter = 0;
+            var func1 = function(done) {
+                // never call done
+                setTimeout(function() {
+                    counter++;
+                    done();
+                }, 2000);
+            }
+
+            var func2 = function(done) {
+                counter++;
+                done();
+            }
+
+            var func3 = function(done) {
+                counter++;
+                done();
+            }
+
+            co.series([func1, func2, func3], ['foo'], 100).then(function(result) {
+                done('Should never been called!');
+            }).catch(function(err) {
+                inspect(err).doesMatch(/Timeout/);
+                inspect(counter).isLesserThan(2);
+                done();
+            });
+        });
+
+        it('Should call functions in series until timeout was reached with context and args', function(done) {
+            var counter = 0;
+            var func1 = function(done) {
+                // never call done
+                setTimeout(function() {
+                    counter++;
+                    done();
+                }, 2000);
+            }
+
+            var func2 = function(done) {
+                counter++;
+                done();
+            }
+
+            var func3 = function(done) {
+                counter++;
+                done();
+            }
+
+            co.series([func1, func2, func3], {}, ['foo'], 100).then(function(result) {
+                done('Should never been called!');
+            }).catch(function(err) {
+                inspect(err).doesMatch(/Timeout/);
+                inspect(counter).isLesserThan(2);
+                done();
+            });
+        });
+    });
 });
