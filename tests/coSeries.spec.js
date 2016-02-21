@@ -375,7 +375,7 @@ describe('co.series()', function() {
         });
     });
 
-    describe.only('series with args and context', function() {
+    describe('series with args and context', function() {
         it('Should fail if args param is not an array', function() {
             inspect(co.series).withArgs([], {}, 'string').doesThrow(/must be an array/);
         });
@@ -479,6 +479,124 @@ describe('co.series()', function() {
                 done();
             }).catch(function(err) {
                 done(err);
+            });
+        });
+    });
+
+    describe('series with timeout', function() {
+        it('Should call functions in series until timeout was reached', function(done) {
+            var counter = 0;
+            var func1 = function(done) {
+                // never call done
+                setTimeout(function() {
+                    counter++;
+                    done();
+                }, 200);
+            }
+
+            var func2 = function(done) {
+                counter++;
+                done();
+            }
+
+            var func3 = function(done) {
+                counter++;
+                done();
+            }
+
+            co.series([func1, func2, func3], 100).then(function(result) {
+                done('Should never been called!');
+            }).catch(function(err) {
+                inspect(err).doesMatch(/Timeout/);
+                inspect(counter).isLesserThan(2);
+                done();
+            });
+        });
+
+        it('Should call functions in series until timeout was reached with context', function(done) {
+            var counter = 0;
+            var func1 = function(done) {
+                // never call done
+                setTimeout(function() {
+                    counter++;
+                    done();
+                }, 200);
+            }
+
+            var func2 = function(done) {
+                counter++;
+                done();
+            }
+
+            var func3 = function(done) {
+                counter++;
+                done();
+            }
+
+            co.series([func1, func2, func3], {}, 100).then(function(result) {
+                done('Should never been called!');
+            }).catch(function(err) {
+                inspect(err).doesMatch(/Timeout/);
+                inspect(counter).isLesserThan(2);
+                done();
+            });
+        });
+
+        it('Should call functions in series until timeout was reached with args', function(done) {
+            var counter = 0;
+            var func1 = function(done) {
+                // never call done
+                setTimeout(function() {
+                    counter++;
+                    done();
+                }, 2000);
+            }
+
+            var func2 = function(done) {
+                counter++;
+                done();
+            }
+
+            var func3 = function(done) {
+                counter++;
+                done();
+            }
+
+            co.series([func1, func2, func3], ['foo'], 100).then(function(result) {
+                done('Should never been called!');
+            }).catch(function(err) {
+                inspect(err).doesMatch(/Timeout/);
+                inspect(counter).isLesserThan(2);
+                done();
+            });
+        });
+
+        it('Should call functions in series until timeout was reached with context and args', function(done) {
+            var counter = 0;
+            var func1 = function(done) {
+                // never call done
+                setTimeout(function() {
+                    counter++;
+                    done();
+                }, 2000);
+            }
+
+            var func2 = function(done) {
+                counter++;
+                done();
+            }
+
+            var func3 = function(done) {
+                counter++;
+                done();
+            }
+
+            co.series([func1, func2, func3], {}, ['foo'], 100).then(function(result) {
+                done('Should never been called!');
+            }).catch(function(err) {
+                inspect(err).doesMatch(/Timeout/);
+                inspect(counter).isLesserThan(2);
+                done();
             });
         });
     });

@@ -11,6 +11,7 @@ var isPromise = function(obj) {
 }
 
 module.exports = co;
+var utils = {};
 
 /**
  * Runs an array of yieldables in series
@@ -19,17 +20,29 @@ module.exports = co;
  * @param  {array} arr  Array of yieldables
  * @param  {object} [ctx] This value, binded to each yieldable
  * @param  {array} [args] Arguments array, passed to each yieldable
+ * @param  {number} [timeout] Sets a timeout. Throws an timeout error if timeout was reached. Defaults to 30000
  * @return {object} Returns a promise
  * 
  * @returnValue {promise}
  * @arg {object} Result object
  */
-module.exports.series = function(arr, ctx, args) {
+utils.series = function(arr, ctx, args, timeout) {
     ctx = ctx || {};
     
     if (Array.isArray(ctx)) {
+        timeout = args;
         args = ctx;
         ctx = {};
+    }
+
+    if (typeof ctx === 'number') {
+        timeout = ctx;
+        ctx = {};
+    }
+
+    if (typeof args === 'number') {
+        timeout = args;
+        args = null;
     }
 
     if (!args) {
@@ -40,9 +53,17 @@ module.exports.series = function(arr, ctx, args) {
         throw new Error('The args parameter must be an array!');
     }
 
-    return co(function* () {
+    timeout = timeout || 30000;
+    let cancleTime = Date.now() + timeout;
+
+    return Promise.race([co(function* () {
         var result = [];
+
         for (let fn of arr) {
+            if (Date.now() > cancleTime) {
+                return null;
+            }
+
             let res;
             if (typeof fn === 'object' &&
                 typeof fn.then === 'function' &&
@@ -51,7 +72,7 @@ module.exports.series = function(arr, ctx, args) {
                 res = yield fn;
             }
             else if (typeof fn === 'function' && fn.constructor.name === 'Function') {
-                let callback = this.getCallbackPromise();
+                let callback = utils.getCallbackPromise();
                 let ownPromise = fn.bind.apply(fn, [ctx].concat(args, callback))();
                 if (isPromise(ownPromise)) {
                     res = yield ownPromise;
@@ -68,10 +89,10 @@ module.exports.series = function(arr, ctx, args) {
         }
 
         return result;
-    }.bind(this));
+    }), utils.getTimeoutPromise(timeout)]);
 };
 
-module.exports.getCallbackPromise = function() {
+utils.getCallbackPromise = function() {
     var resolve,
         reject,
         finalFuncs = [];
@@ -126,3 +147,16 @@ module.exports.getCallbackPromise = function() {
 
     return callback;
 };
+
+utils.getTimeoutPromise = function(timeout) {
+    return new Promise(function(resolve, reject) {
+        setTimeout(function() {
+            reject('Timeout of ' + timeout + 'ms has been reached!');
+        }, timeout);
+    });
+};
+
+
+module.exports.series = utils.series;
+module.exports.getCallbackPromise = utils.getCallbackPromise;
+module.exports.getTimeoutPromise = utils.getTimeoutPromise;
