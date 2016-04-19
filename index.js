@@ -121,6 +121,10 @@ utils.pipe = function(arr, ctx, pipeArg, timeout) {
         timeout = pipeArg;
         pipeArg = {};
     }
+    else if (pipeArg === undefined && ctx instanceof Object) {
+      pipeArg = ctx;
+      ctx = {};
+    }
 
     if (!pipeArg instanceof Object) {
         throw new TypeError('Pipe arg is not a valid object!');
@@ -144,7 +148,7 @@ utils.pipe = function(arr, ctx, pipeArg, timeout) {
             }
             else if (typeof fn === 'function' && fn.constructor.name === 'Function') {
                 let callback = utils.getCallbackPromise();
-                let ownPromise = fn.bind.apply(fn, [ctx].concat(pipeArg, callback))();
+                let ownPromise = fn.call(ctx, pipeArg, callback);
                 if (isPromise(ownPromise)) {
                     res = yield ownPromise;
                 }
@@ -153,7 +157,7 @@ utils.pipe = function(arr, ctx, pipeArg, timeout) {
                 }
             }
             else {
-                res = yield fn.bind.apply(fn, [ctx].concat(pipeArg))();
+                res = yield fn.call(fn, ctx, pipeArg);
             }
 
             if (res instanceof Object) {
