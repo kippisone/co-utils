@@ -108,6 +108,7 @@ utils.series = function(arr, ctx, args, timeout) {
 utils.pipe = function(arr, ctx, pipeArg, timeout) {
     ctx = ctx || {};
 
+
     if (!Array.isArray(arr)) {
       throw new TypeError('First argument must be an array! But its typeof ' + typeof arr);
     }
@@ -157,7 +158,7 @@ utils.pipe = function(arr, ctx, pipeArg, timeout) {
                 }
             }
             else {
-                res = yield fn.call(fn, ctx, pipeArg);
+                res = yield fn.call(ctx, pipeArg);
             }
 
             if (res instanceof Object) {
