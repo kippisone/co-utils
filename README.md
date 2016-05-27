@@ -46,7 +46,9 @@ co.series(promises).then(function(result) {
 
 ```
 
-## .pipe(arr, [ctx], pipeObj, [timeout]) Pipes an object through an array of yieldables in series
+## .pipe(arr, [ctx], pipeObj, [timeout])
+
+Pipes an object through an array of yieldables in series
 
 `arr` Array of yieldables  
 `ctx` This context (Optional)  
