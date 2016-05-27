@@ -1,17 +1,24 @@
 
 # co-utils
 
-Runs an array of **yieldables** in series using [co](https://github.com/tj/co) 
+Runs an array of **yieldables** in series using [co](https://github.com/tj/co)
+
+## .series(arr, [ctx], [args], [timeout]) Calls an array of yielables in series
+
+`arr` Array of yieldables  
+`ctx` This context (Optional)  
+`args` Arguments passed to each yieldable (Optional)  
+`timeout` Optional number of a timeout in milliseconds. Defaults to `30000`  
 
 ```js
-var co = require('co-series');
+let co = require('co-series');
 
 // co can be used as usual
 co(function* () {
-    
+
 });
 
-var promises = [
+let promises = [
     Promise.resolve('a');
     Promise.resolve('b');
     Promise.resolve('c');
@@ -25,7 +32,7 @@ co.series(promises).then(function(result) {
 // if one of the promises rejects or an error will be thrown,
 // then the main promise will fail
 
-var promises = [
+let promises = [
     Promise.resolve('a');
     Promise.resolve('b');
     Promise.reject('Something went wrong');
@@ -37,6 +44,29 @@ co.series(promises).then(function(result) {
     // err === 'Something went wrong'
 });
 
+```
+
+## .pipe(arr, [ctx], pipeObj, [timeout])
+
+Pipes an object through an array of yieldables in series
+
+`arr` Array of yieldables  
+`ctx` This context (Optional)  
+`pipeObj` Object to be piped through yieldables `arr`  
+`timeout` Optional number of a timeout in milliseconds. Defaults to `30000`  
+
+```js
+let arr = [
+    function * (obj) { obj.a = true; return obj },
+    function * (obj) { obj.b = true; return obj },
+    function * (obj) { obj.c = true; return obj }
+];
+
+obj = {};
+co.pipe(arr, pipeObj).then(function(result) {
+    // result looks like:
+    // { a: true, b: true, c: true }
+})
 ```
 
 ### yieldables

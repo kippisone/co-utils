@@ -1,11 +1,10 @@
 var co = require('../index.js');
-var expect = require('expect.js');
 var inspect = require('inspect.js');
 var sinon = require('sinon');
 
 describe('co.series()', function() {
     'use strict';
-    
+
     describe('getCallbackPromise', function(done) {
         it('Should return a callback promise', function() {
             var callback = co.getCallbackPromise();
@@ -22,7 +21,7 @@ describe('co.series()', function() {
             }
 
             callback.then(function(data) {
-                expect(data).to.eql('ok');
+                inspect(data).isEql('ok');
                 done();
             }).catch(function(err) {
                 done(err);
@@ -41,7 +40,7 @@ describe('co.series()', function() {
             callback.then(function() {
                 done('Should fail, but it passed!');
             }).catch(function(err) {
-                expect(err).to.eql('fail');
+                inspect(err).isEql('fail');
                 done();
             });
 
@@ -52,7 +51,7 @@ describe('co.series()', function() {
             var callback = co.getCallbackPromise();
 
             callback.then(function(data) {
-                expect(data).to.eql('ok');
+                inspect(data).isEql('ok');
                 done();
             }).catch(function(err) {
                 done(err);
@@ -67,7 +66,7 @@ describe('co.series()', function() {
             callback.then(function() {
                 done('Should fail, but it passed!');
             }).catch(function(err) {
-                expect(err).to.eql('fail');
+                inspect(err).isEql('fail');
                 done();
             });
 
@@ -138,7 +137,7 @@ describe('co.series()', function() {
             ];
 
             co.series(functions).then(function(result) {
-                expect(result).to.be.eql(['a', 'b', 'c']);
+                inspect(result).isEql(['a', 'b', 'c']);
                 done();
             }).catch(function(err) {
                 done(err);
@@ -163,7 +162,7 @@ describe('co.series()', function() {
             co.series([func1, func2, func3]).then(function() {
                 done('Fail!');
             }).catch(function(err) {
-                expect(err).to.be.eql('Booom');
+                inspect(err).isEql('Booom');
                 done();
             });
         });
@@ -186,7 +185,7 @@ describe('co.series()', function() {
             co.series([func1, func2, func3]).then(function() {
                 done('Fail!');
             }).catch(function(err) {
-                expect(err.name).to.be.eql('Booom');
+                inspect(err.name).isEql('Booom');
                 done();
             });
         });
@@ -199,7 +198,7 @@ describe('co.series()', function() {
             ];
 
             co.series(promises).then(function(result) {
-                expect(result).to.be.eql(['a', 'b', 'c']);
+                inspect(result).isEql(['a', 'b', 'c']);
                 done();
             }).catch(function(err) {
                 done(err);
@@ -214,7 +213,7 @@ describe('co.series()', function() {
             co.series([p1, p2, p3]).then(function(res) {
                 done('Fail!');
             }).catch(function(err) {
-                expect(err).to.be.eql('Booom');
+                inspect(err).isEql('Booom');
                 done();
             });
         });
@@ -227,7 +226,7 @@ describe('co.series()', function() {
             co.series([p1, p2, p3]).then(function(res) {
                 done('Fail!');
             }).catch(function(err) {
-                expect(err.message).to.be.eql('Booom');
+                inspect(err.message).isEql('Booom');
                 done();
             });
         });
@@ -244,7 +243,7 @@ describe('co.series()', function() {
             ];
 
             co.series(generators).then(function(result) {
-                expect(result).to.be.eql(['a', 'b', 'c']);
+                inspect(result).isEql(['a', 'b', 'c']);
                 done();
             }).catch(function(err) {
                 done(err);
@@ -265,7 +264,7 @@ describe('co.series()', function() {
             co.series(generators).then(function(result) {
                 done('Fail!');
             }).catch(function(err) {
-                expect(err).to.be.eql('Booom');
+                inspect(err).isEql('Booom');
                 done();
             });
         });
@@ -295,7 +294,7 @@ describe('co.series()', function() {
 
             var args = ['apple', 'banana', 'coconut'];
             co.series(functions, args).then(function(result) {
-                expect(result).to.be.eql(['apple', 'banana', 'coconut']);
+                inspect(result).isEql(['apple', 'banana', 'coconut']);
                 done();
             }).catch(function(err) {
                 done(err);
@@ -321,7 +320,7 @@ describe('co.series()', function() {
 
             var args = ['apple', 'banana', 'coconut'];
             co.series(functions, args).then(function(result) {
-                expect(result).to.be.eql(['apple', 'banana', 'coconut']);
+                inspect(result).isEql(['apple', 'banana', 'coconut']);
                 done();
             }).catch(function(err) {
                 done(err);
@@ -347,7 +346,7 @@ describe('co.series()', function() {
 
             var args = ['apple', 'banana', 'coconut'];
             co.series(functions, args).then(function(result) {
-                expect(result).to.be.eql(['apple', 'banana', 'coconut']);
+                inspect(result).isEql(['apple', 'banana', 'coconut']);
                 done();
             }).catch(function(err) {
                 done(err);
@@ -367,7 +366,7 @@ describe('co.series()', function() {
 
             var args = ['apple', 'banana', 'coconut'];
             co.series(generators, args).then(function(result) {
-                expect(result).to.be.eql(['apple', 'banana', 'coconut']);
+                inspect(result).isEql(['apple', 'banana', 'coconut']);
                 done();
             }).catch(function(err) {
                 done(err);
@@ -400,7 +399,7 @@ describe('co.series()', function() {
             var args = ['apple', 'banana', 'coconut'];
             var ctx = { prefix: 'I like: ' };
             co.series(functions, ctx, args).then(function(result) {
-                expect(result).to.be.eql(['I like: apple', 'I like: banana', 'I like: coconut']);
+                inspect(result).isEql(['I like: apple', 'I like: banana', 'I like: coconut']);
                 done();
             }).catch(function(err) {
                 done(err);
@@ -427,7 +426,7 @@ describe('co.series()', function() {
             var args = ['apple', 'banana', 'coconut'];
             var ctx = { prefix: 'I like: ' };
             co.series(functions, ctx, args).then(function(result) {
-                expect(result).to.be.eql(['I like: apple', 'I like: banana', 'I like: coconut']);
+                inspect(result).isEql(['I like: apple', 'I like: banana', 'I like: coconut']);
                 done();
             }).catch(function(err) {
                 done(err);
@@ -454,7 +453,7 @@ describe('co.series()', function() {
             var args = ['apple', 'banana', 'coconut'];
             var ctx = { prefix: 'I like: ' };
             co.series(functions, ctx, args).then(function(result) {
-                expect(result).to.be.eql(['I like: apple', 'I like: banana', 'I like: coconut']);
+                inspect(result).isEql(['I like: apple', 'I like: banana', 'I like: coconut']);
                 done();
             }).catch(function(err) {
                 done(err);
@@ -475,7 +474,7 @@ describe('co.series()', function() {
             var args = ['apple', 'banana', 'coconut'];
             var ctx = { prefix: 'I like: ' };
             co.series(generators, ctx, args).then(function(result) {
-                expect(result).to.be.eql(['I like: apple', 'I like: banana', 'I like: coconut']);
+                inspect(result).isEql(['I like: apple', 'I like: banana', 'I like: coconut']);
                 done();
             }).catch(function(err) {
                 done(err);

@@ -22,13 +22,13 @@ var utils = {};
  * @param  {array} [args] Arguments array, passed to each yieldable
  * @param  {number} [timeout] Sets a timeout. Throws an timeout error if timeout was reached. Defaults to 30000
  * @return {object} Returns a promise
- * 
+ *
  * @returnValue {promise}
  * @arg {object} Result object
  */
 utils.series = function(arr, ctx, args, timeout) {
     ctx = ctx || {};
-    
+
     if (Array.isArray(ctx)) {
         timeout = args;
         args = ctx;
@@ -92,6 +92,86 @@ utils.series = function(arr, ctx, args, timeout) {
     }), utils.getTimeoutPromise(timeout)]);
 };
 
+/**
+ * Pipes an object through an array of yieldables in series
+ *
+ * @method pipe
+ * @param  {array} arr  Array of yieldables
+ * @param  {object} [ctx] This value, binded to each yieldable
+ * @param  {object} pipeArg Arguments array, passed to each yieldable
+ * @param  {number} [timeout] Sets a timeout. Throws an timeout error if timeout was reached. Defaults to 30000
+ * @return {object} Returns a promise
+ *
+ * @returnValue {promise}
+ * @arg {object} Result object
+ */
+utils.pipe = function(arr, ctx, pipeArg, timeout) {
+    ctx = ctx || {};
+
+
+    if (!Array.isArray(arr)) {
+      throw new TypeError('First argument must be an array! But its typeof ' + typeof arr);
+    }
+
+    if (typeof ctx === 'number') {
+        timeout = ctx;
+        ctx = {};
+        pipeArg = {};
+    }
+    else if (typeof pipeArg === 'number') {
+        timeout = pipeArg;
+        pipeArg = {};
+    }
+    else if (pipeArg === undefined && ctx instanceof Object) {
+      pipeArg = ctx;
+      ctx = {};
+    }
+
+    if (!pipeArg instanceof Object) {
+        throw new TypeError('Pipe arg is not a valid object!');
+    }
+
+    timeout = timeout || 30000;
+    let cancleTime = Date.now() + timeout;
+
+    return Promise.race([co(function* () {
+        for (let fn of arr) {
+            if (Date.now() > cancleTime) {
+                return null;
+            }
+
+            let res;
+            if (typeof fn === 'object' &&
+                typeof fn.then === 'function' &&
+                typeof fn.catch === 'function'
+            ) {
+                res = yield fn;
+            }
+            else if (typeof fn === 'function' && fn.constructor.name === 'Function') {
+                let callback = utils.getCallbackPromise();
+                let ownPromise = fn.call(ctx, pipeArg, callback);
+                if (isPromise(ownPromise)) {
+                    res = yield ownPromise;
+                }
+                else {
+                    res = yield callback._promise;
+                }
+            }
+            else {
+                res = yield fn.call(ctx, pipeArg);
+            }
+
+            if (res instanceof Object) {
+              pipeArg = res;
+            }
+        }
+
+        return pipeArg;
+
+    }), utils.getTimeoutPromise(timeout)]);
+};
+
+
 utils.getCallbackPromise = function() {
     var resolve,
         reject,
@@ -114,7 +194,7 @@ utils.getCallbackPromise = function() {
         resolve(res);
         callback._callFinal();
     }
-    
+
     callback.reject = function(res) {
         reject(res);
         callback._callFinal();
@@ -158,5 +238,6 @@ utils.getTimeoutPromise = function(timeout) {
 
 
 module.exports.series = utils.series;
+module.exports.pipe = utils.pipe;
 module.exports.getCallbackPromise = utils.getCallbackPromise;
 module.exports.getTimeoutPromise = utils.getTimeoutPromise;
