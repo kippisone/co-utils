@@ -1,7 +1,6 @@
 'use strict';
 
 let co = require('../index.js');
-let expect = require('expect.js');
 let inspect = require('inspect.js');
 // let sinon = require('sinon');
 
@@ -35,7 +34,7 @@ describe('co.pipe()', function() {
 
             let pipeArg = {};
             co.pipe(functions, pipeArg).then(function(result) {
-                expect(result).to.be.eql({
+                inspect(result).isEql({
                   a: true,
                   b: true,
                   c: true
@@ -68,7 +67,7 @@ describe('co.pipe()', function() {
 
             var pipeArg = {};
             co.pipe(functions, pipeArg).then(function(result) {
-                expect(result).to.be.eql({
+                inspect(result).isEql({
                   a: true,
                   b: true,
                   c: true
@@ -101,7 +100,7 @@ describe('co.pipe()', function() {
 
             var args = {};
             co.pipe(functions, args).then(function(result) {
-                expect(result).to.be.eql({
+                inspect(result).isEql({
                   a: true,
                   b: true,
                   c: true
@@ -136,7 +135,7 @@ describe('co.pipe()', function() {
 
             var args = {};
             co.pipe(generators, args).then(function(result) {
-                expect(result).to.be.eql({
+                inspect(result).isEql({
                   a: true,
                   b: true,
                   c: true
