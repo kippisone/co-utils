@@ -82,7 +82,7 @@ utils.series = function(arr, ctx, args, timeout) {
                 }
             }
             else {
-                res = yield fn.bind.apply(fn, [ctx].concat(args))();
+                res = yield * fn.apply(ctx, args);
             }
 
             result.push(res);
@@ -158,7 +158,7 @@ utils.pipe = function(arr, ctx, pipeArg, timeout) {
                 }
             }
             else {
-                res = yield fn.call(ctx, pipeArg);
+                res = yield * fn.call(ctx, pipeArg);
             }
 
             if (res instanceof Object) {
