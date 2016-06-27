@@ -23,7 +23,8 @@
   "author": "Andi Heinkelein <andifeind@noname-media.com>",
   "license": "MIT",
   "dependencies": {
-    "co": "^4.6.0"
+    "co": "^4.6.0",
+    "logtopus": "^0.2.1"
   },
   "devDependencies": {
     "inspect.js": "^0.1.2",

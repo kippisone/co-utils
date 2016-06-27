@@ -1,6 +1,8 @@
 'use strict';
 
 var co = require('co');
+var log = require('logtopus').getLogger('co-utils');
+// log.setLevel('debug');
 
 var isPromise = function(obj) {
     if (obj && typeof obj.then === 'function' && typeof obj.catch === 'function') {
@@ -56,11 +58,16 @@ utils.series = function(arr, ctx, args, timeout) {
     timeout = timeout || 30000;
     let cancleTime = Date.now() + timeout;
 
+    log.debug('Run tasks in series');
+    log.debug(' ... num tasks:', arr.length);
+    log.debug(' ... timeout:', timeout);
+
     return Promise.race([co(function* () {
         var result = [];
 
         for (let fn of arr) {
             if (Date.now() > cancleTime) {
+                log.debug('Cancle call. Timeout was reached!');
                 return null;
             }
 
@@ -69,25 +76,30 @@ utils.series = function(arr, ctx, args, timeout) {
                 typeof fn.then === 'function' &&
                 typeof fn.catch === 'function'
             ) {
+                log.debug('Run promise task')
                 res = yield fn;
             }
             else if (typeof fn === 'function' && fn.constructor.name === 'Function') {
                 let callback = utils.getCallbackPromise();
                 let ownPromise = fn.bind.apply(fn, [ctx].concat(args, callback))();
                 if (isPromise(ownPromise)) {
+                    log.debug('Run promise function')
                     res = yield ownPromise;
                 }
                 else {
+                    log.debug('Run callback function')
                     res = yield callback._promise;
                 }
             }
             else {
+                log.debug('Run generator function')
                 res = yield * fn.apply(ctx, args);
             }
 
             result.push(res);
         }
 
+        log.debug('All tasks done in series!');
         return result;
     }), utils.getTimeoutPromise(timeout)]);
 };
@@ -231,6 +243,7 @@ utils.getCallbackPromise = function() {
 utils.getTimeoutPromise = function(timeout) {
     return new Promise(function(resolve, reject) {
         setTimeout(function() {
+            log.warn('Timeout of ' + timeout + 'ms has been reached!');
             reject('Timeout of ' + timeout + 'ms has been reached!');
         }, timeout);
     });
