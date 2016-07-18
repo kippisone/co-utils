@@ -11,7 +11,7 @@ Runs an array of **yieldables** in series using [co](https://github.com/tj/co)
 `timeout` Optional number of a timeout in milliseconds. Defaults to `30000`  
 
 ```js
-let co = require('co-series');
+let co = require('co-utils');
 
 // co can be used as usual
 co(function* () {
