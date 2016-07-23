@@ -57,6 +57,7 @@ utils.series = function(arr, ctx, args, timeout) {
 
     timeout = timeout || 30000;
     let cancleTime = Date.now() + timeout;
+    let timeoutHandle;
 
     log.debug('Run tasks in series');
     log.debug(' ... num tasks:', arr.length);
@@ -99,9 +100,13 @@ utils.series = function(arr, ctx, args, timeout) {
             result.push(res);
         }
 
+        if (timeoutHandle) {
+            timeoutHandle.kill();
+        }
+
         log.debug('All tasks done in series!');
         return result;
-    }), utils.getTimeoutPromise(timeout)]);
+    }), utils.getTimeoutPromise(timeout, timeoutHandle)]);
 };
 
 /**
@@ -145,6 +150,7 @@ utils.pipe = function(arr, ctx, pipeArg, timeout) {
 
     timeout = timeout || 30000;
     let cancleTime = Date.now() + timeout;
+    let timeoutHandle;
 
     return Promise.race([co(function* () {
         for (let fn of arr) {
@@ -178,9 +184,13 @@ utils.pipe = function(arr, ctx, pipeArg, timeout) {
             }
         }
 
+        if (timeoutHandle) {
+            timeoutHandle.kill();
+        }
+
         return pipeArg;
 
-    }), utils.getTimeoutPromise(timeout)]);
+    }), utils.getTimeoutPromise(timeout, timeoutHandle)]);
 };
 
 
@@ -240,12 +250,16 @@ utils.getCallbackPromise = function() {
     return callback;
 };
 
-utils.getTimeoutPromise = function(timeout) {
+utils.getTimeoutPromise = function(timeout, handle) {
     return new Promise(function(resolve, reject) {
-        setTimeout(function() {
+        let timeoutHandle = setTimeout(function() {
             log.warn('Timeout of ' + timeout + 'ms has been reached!');
             reject('Timeout of ' + timeout + 'ms has been reached!');
         }, timeout);
+
+        handle.kill = function() {
+            clearTimeout(timeoutHandle);
+        }
     });
 };
 
