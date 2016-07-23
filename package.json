@@ -7,7 +7,7 @@
     "test": "tests"
   },
   "scripts": {
-    "test": "./node_modules/mocha/bin/_mocha tests/*.spec.js"
+    "test": "./node_modules/mocha/bin/_mocha --reporter lagoon-reporter tests/*.spec.js"
   },
   "keywords": [
     "co",
@@ -27,7 +27,8 @@
     "logtopus": "^0.2.1"
   },
   "devDependencies": {
-    "inspect.js": "^0.1.2",
+    "inspect.js": "^1.0.0",
+    "lagoon-reporter": "^0.2.0",
     "mocha": "^2.5.3",
     "sinon": "^1.17.4"
   },
