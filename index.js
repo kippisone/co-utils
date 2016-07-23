@@ -57,11 +57,15 @@ utils.series = function(arr, ctx, args, timeout) {
 
     timeout = timeout || 30000;
     let cancleTime = Date.now() + timeout;
-    let timeoutHandle;
 
     log.debug('Run tasks in series');
     log.debug(' ... num tasks:', arr.length);
     log.debug(' ... timeout:', timeout);
+
+    let timerPromise = utils.getPromise();
+    let timer = setTimeout(() => {
+        timerPromise.reject('Timeout has been reached!');
+    }, timeout);
 
     return Promise.race([co(function* () {
         var result = [];
@@ -100,13 +104,11 @@ utils.series = function(arr, ctx, args, timeout) {
             result.push(res);
         }
 
-        if (timeoutHandle) {
-            timeoutHandle.kill();
-        }
+        clearTimeout(timer);
 
         log.debug('All tasks done in series!');
         return result;
-    }), utils.getTimeoutPromise(timeout, timeoutHandle)]);
+    }), timerPromise]);
 };
 
 /**
@@ -150,7 +152,11 @@ utils.pipe = function(arr, ctx, pipeArg, timeout) {
 
     timeout = timeout || 30000;
     let cancleTime = Date.now() + timeout;
-    let timeoutHandle;
+
+    let timerPromise = utils.getPromise();
+    let timer = setTimeout(() => {
+        timerPromise.reject('Timeout has been reached!');
+    }, timeout);
 
     return Promise.race([co(function* () {
         for (let fn of arr) {
@@ -184,13 +190,11 @@ utils.pipe = function(arr, ctx, pipeArg, timeout) {
             }
         }
 
-        if (timeoutHandle) {
-            timeoutHandle.kill();
-        }
+        clearTimeout(timer);
 
         return pipeArg;
 
-    }), utils.getTimeoutPromise(timeout, timeoutHandle)]);
+    }), timerPromise]);
 };
 
 
@@ -250,18 +254,24 @@ utils.getCallbackPromise = function() {
     return callback;
 };
 
-utils.getTimeoutPromise = function(timeout, handle) {
-    return new Promise(function(resolve, reject) {
-        let timeoutHandle = setTimeout(function() {
-            log.warn('Timeout of ' + timeout + 'ms has been reached!');
-            reject('Timeout of ' + timeout + 'ms has been reached!');
-        }, timeout);
-
-        handle.kill = function() {
-            clearTimeout(timeoutHandle);
-        }
+utils.getPromise = function() {
+    var _resolve;
+    var _reject;
+    var promise = new Promise((resolve, reject) => {
+        _resolve = resolve;
+        _reject = reject;
     });
-};
+
+    promise.resolve = function(data) {
+        _resolve(data);
+    }
+
+    promise.reject = function(data) {
+        _reject(data);
+    }
+
+    return promise;
+}
 
 
 module.exports.series = utils.series;
