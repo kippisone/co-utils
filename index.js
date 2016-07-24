@@ -276,5 +276,4 @@ utils.getPromise = function() {
 
 module.exports.series = utils.series;
 module.exports.pipe = utils.pipe;
-module.exports.getCallbackPromise = utils.getCallbackPromise;
 module.exports.getTimeoutPromise = utils.getTimeoutPromise;
